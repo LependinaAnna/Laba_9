@@ -1,0 +1,195 @@
+#define _CRT_SECURE_NO_DEPRECATE
+#define _USE_MATH_DEFINES 
+#include <locale.h>
+#include <stdio.h>
+#include <math.h>
+#include <string.h>
+#include <ctype.h>
+
+#define ROW 9
+#define COL 9
+#define ROWW 5
+
+int z_1a(int col, int row);
+int z_1b(int col, int row);
+int z_1c(int col, int row);
+int z_2(int l);
+
+int main()
+{
+    setlocale(LC_ALL, "RUS");
+    
+    int row, col, result_1a, result_1b, result_1c;
+    
+    printf("\n");
+    for (row = 1; row <= ROW; row++)
+    {
+        for (col = 1; col <= COL; col++)
+        {
+            result_1a = z_1a(col, row);
+            printf("%5d", result_1a);
+        }
+        printf("\n");
+    }
+    printf("\n\n");
+    
+    for (row = 1; row <= ROW; row++)
+    {
+        for (col = 1; col <= row; col++)
+        {
+            result_1b = z_1b(col, row);
+            printf("%4d", result_1b);
+        }
+        printf("\n");
+    }
+    printf("\n\n");
+ 
+    for (row = 1; row <= ROWW; row++)
+    {
+        for (col = 1; col <= row; col++)
+        {
+            result_1c = z_1c(col, row);
+            printf("%3d", result_1c);
+        }
+        printf("\n");
+    }
+    printf("\n\n");
+    
+    char choice;
+    do {
+        int len, l;
+        printf("Введите количество цифр в длинном числе");
+        scanf("%d", &l);
+        len = z_2(l);
+        if (len < 0) 
+        {
+            printf("Ошибка: длина должна быть больше 0!\n");
+            while (getchar() != '\n'); 
+            goto ask_continue;
+        }
+        while (getchar() != '\n'); 
+        printf("Введите длинное число (ровно %d цифр)", len);
+        int count_3 = 0, count_even = 0, count_greater_5 = 0;
+        int sum_odd = 0, sum_gte_7 = 0;
+        long long prod_non_zero = 1;
+        int has_non_zero = 0;
+        int sum_even_except_last = 0;
+        int adjacent_identical = 0;
+        int sum_first_half = 0, sum_second_half = 0;
+        int sum_even_pos = 0, sum_odd_pos = 0;
+        int second_digit = -1;
+        int penultimate_digit = -1;
+        int last_digit = -1;
+        int count_last_digit = 0;
+        int prev_digit = -1; 
+        int is_valid = 1;
+        for (int i = 1; i <= len; i++) 
+        {
+            char ch = getchar();
+            if (!isdigit((unsigned char)ch)) 
+            {
+                is_valid = 0;
+            }
+            int digit = ch - '0';
+            int pos_from_end = len - i + 1;
+            if (i == 2) second_digit = digit;
+            if (i == len - 1) penultimate_digit = digit;
+            if (i == len) last_digit = digit;
+            if (digit == 3) count_3++;
+            if (digit % 2 == 0) count_even++;
+            if (digit > 5) count_greater_5++;
+            if (digit % 2 != 0) sum_odd += digit;
+            if (digit >= 7) sum_gte_7 += digit;
+            if (digit != 0) 
+            {
+                prod_non_zero *= digit;
+                has_non_zero = 1;
+            }
+            if (i != len && digit % 2 == 0) 
+            {
+                sum_even_except_last += digit;
+            }
+            if (prev_digit != -1 && digit == prev_digit) 
+            {
+                adjacent_identical = 1;
+            }
+            prev_digit = digit;
+            if (i <= len / 2) 
+            {
+                sum_first_half += digit;
+            } 
+            else if (len % 2 == 0 || i > (len / 2) + 1) 
+            {
+                sum_second_half += digit;
+            }
+            if (pos_from_end % 2 != 0) 
+            {
+                sum_odd_pos += digit;
+            } 
+            else 
+            {
+                sum_even_pos += digit;
+            }
+        }
+        while (prev_digit != -1 && getchar() != '\n');
+        if (!is_valid) 
+        {
+            printf("Ошибка: в строке есть символ, не являющийся цифрой!\n");
+            goto ask_continue;
+        }
+        printf("\n--- Результаты анализа ---\n");
+        printf("1) Количество цифр 3 в числе: %d\n", count_3);
+        printf("2) Последняя цифра числа: %d\n", last_digit);
+        printf("3) Количество чётных цифр: %d\n", count_even);
+        printf("4) Количество цифр больших 5: %d\n", count_greater_5);
+        printf("5) Сумма нечётных цифр: %d\n", sum_odd);
+        printf("6) Сумма цифр больше или равно 7: %d\n", sum_gte_7);
+        printf("7) Произведение цифр без 0: %lld\n", has_non_zero ? prod_non_zero : 0);
+        if (len >= 2) 
+        {
+            printf("8) Произведение предпоследней (%d) и второй (%d) цифры: %d\n", penultimate_digit, second_digit, penultimate_digit * second_digit);
+        } 
+        else 
+        {
+            printf("8) Слишком короткое число (меньше 2 цифр)\n");
+        }
+        printf("9) Сумма четных цифр, исключая последнюю: %d\n", sum_even_except_last);
+        printf("10) Рядом расположенные одинаковые цифры: %s\n", adjacent_identical ? "Есть" : "Нет");
+        printf("11) Равна сумма половин цифр: %s (Суммы: %d и %d)\n", (sum_first_half == sum_second_half) ? "Да" : "Нет", sum_first_half, sum_second_half);
+        printf("12) Произведение сумм чётных разрядов (%d) и нечётных (%d): %lld\n", sum_even_pos, sum_odd_pos, (long long)sum_even_pos * sum_odd_pos);
+    ask_continue:
+        printf("\nПродолжить выполнение? (Да - y, нет - n): ");
+        scanf(" %c", &choice);
+        while (getchar() != '\n'); 
+    } 
+    while (choice != 'n' && choice != 'N');
+    printf("Программа завершена.\n");
+    return 0;
+}
+
+int z_1a(int col, int row)
+{
+    int res_1a;
+    res_1a = col * row;
+    return res_1a;
+}
+
+int z_1b(int col, int row)
+{
+    int res_1b;
+    res_1b = col * row;
+    return res_1b;
+}
+
+int z_1c(int col, int row)
+{
+    int res_1c;
+    res_1c = (col / col) * row;
+    return res_1c;
+}
+
+int z_2(int l)
+{
+    if (l <= 0) return -1;
+    else return l;
+}
